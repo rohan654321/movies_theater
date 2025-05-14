@@ -13,21 +13,23 @@ type MoviePageParams = {
   id: string
 }
 
-// Add generateStaticParams to help Next.js with typing
 export async function generateStaticParams() {
-  // This is just for typing purposes, we're not actually pre-rendering
-  return []
+  return [] // Empty because this is for typing purposes, no pre-rendering
 }
 
+// Await the params before using it
 export default async function MovieDetailsPage({ params }: { params: MoviePageParams }) {
-  if (!params.id || isNaN(Number(params.id))) {
+  // Await params here to avoid the error
+  const { id } = await params // Awaiting the dynamic params
+
+  if (!id || isNaN(Number(id))) {
     notFound()
   }
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Suspense fallback={<MovieDetailsSkeleton />}>
-        <MovieDetails id={params.id} />
+        <MovieDetails id={id} />
       </Suspense>
     </main>
   )

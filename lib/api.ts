@@ -1,17 +1,29 @@
 import type { MovieDetails, MoviesResponse } from "@/types"
 
-const API_KEY = process.env.TMDB_API_KEY || "YOUR_TMDB_API_KEY"
+const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY
 const BASE_URL = "https://api.themoviedb.org/3"
+
+if (!API_KEY) {
+  throw new Error("TMDB_API_KEY is not defined in environment")
+}
+
+const defaultHeaders = {
+  Authorization: `Bearer ${API_KEY}`,
+  "Content-Type": "application/json",
+}
 
 /**
  * Fetches popular movies with optional search query
  */
 export async function getPopularMovies(page = 1, query = ""): Promise<MoviesResponse> {
   const endpoint = query
-    ? `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&page=${page}`
-    : `${BASE_URL}/movie/popular?api_key=${API_KEY}&page=${page}`
+    ? `${BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}`
+    : `${BASE_URL}/movie/popular?page=${page}`
 
-  const response = await fetch(endpoint, { next: { revalidate: 3600 } }) // Cache for 1 hour
+  const response = await fetch(endpoint, {
+    headers: defaultHeaders,
+    next: { revalidate: 3600 },
+  })
 
   if (!response.ok) {
     throw new Error(`Failed to fetch movies: ${response.status}`)
@@ -26,8 +38,11 @@ export async function getPopularMovies(page = 1, query = ""): Promise<MoviesResp
 export async function getMovieDetails(id: string): Promise<MovieDetails | null> {
   try {
     const response = await fetch(
-      `${BASE_URL}/movie/${id}?api_key=${API_KEY}&append_to_response=credits,videos`,
-      { next: { revalidate: 86400 } }, // Cache for 24 hours
+      `${BASE_URL}/movie/${id}?append_to_response=credits,videos`,
+      {
+        headers: defaultHeaders,
+        next: { revalidate: 86400 },
+      },
     )
 
     if (!response.ok) {
