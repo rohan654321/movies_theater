@@ -8,7 +8,18 @@ import { MovieDetailsSkeleton } from "@/components/skeletons"
 import { Button } from "@/components/ui/button"
 import { formatRuntime, formatDate } from "@/lib/utiles"
 
-export default async function MovieDetailsPage({ params }: { params: { id: string } }) {
+// Define the params type for this page
+type MoviePageParams = {
+  id: string
+}
+
+// Add generateStaticParams to help Next.js with typing
+export async function generateStaticParams() {
+  // This is just for typing purposes, we're not actually pre-rendering
+  return []
+}
+
+export default async function MovieDetailsPage({ params }: { params: MoviePageParams }) {
   if (!params.id || isNaN(Number(params.id))) {
     notFound()
   }
